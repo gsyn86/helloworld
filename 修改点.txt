@@ -1,0 +1,272 @@
+2025_06_05:
+	1:  WHX_CLR_GRP_READY2RUN(whx_Bts);
+	在smkStart()中，由于出错返回，所以要调用这个
+
+
+	2：uiChrg_Unplug（）中
+	使用(C_UIPAGE_CHRG_UNPLUG_F==uiPage)判断充满			(NP25021，CD24049，CD25022， 无此功能)
+
+	3：在中断中，滤波电压 AD_rms_Pos
+		if((adcVal.tb>(uint16_t)500)&&(adcVal.tb<(uint16_t)2500)) 才存取
+
+	4： 没CONFIG_EMERGENCY_LOWV的中断里，if(ADC_V_IS_LE(adcVal.tb,C_LOWV_YLOAD)) 里没有清除pwmSmk_low_loadV_cnt
+	
+	以上： CD25010, NP25011, NP25021，CD24049， CD25022，NP25002,  6个机型已经完成
+	
+
+2025_06_07:
+	smkResCK_scan()中，增加判断次数
+		if(resCkConfirm<(uint8_t)200/5))
+		
+		if(resCkConfirm==(uint8_t)200/5))
+		并将电阻界限的判断-3，  即：
+		if(ad>=3)
+	{
+		ad-=3;		///3=30Mr
+	}
+		
+		以上： NP25011,	CD25010,	NP25021，CD24049，CD25022，NP25002,  5个机型已经完成
+		
+		
+		在 uiOverVolt() 中，求和tmp32+=advx[posx];写错，应该写为tmp32+=advx[i];
+		另外 ((voltxx)>=(405-5))
+		
+		以上： CD25010,	NP25021，2个机型已经完成
+					NP25011，CD24049，CD25022，NP25002，  无此功能
+		
+		
+2025_06_09:		
+		中断中，if(AD_REQUEST_IS_SET()) ， 在吸烟中，是否需要放开检测，对于轮流查询的情况下，不可以放开，因为是在下一个中断周期才读取数据, if(AD_REQUEST_IS_SET()) 不可以打断它
+		
+		smkResCK_Init()中，把电阻初始化为空，即：
+		resitor[i]=0XFFFF;  
+		resitor_valid[i]=0XFFFF;
+		
+		以上： CD25011,	NP25021，CD24049，CD25022，NP25002,  5个机型已经完成
+			
+		
+		在主程序中，判断塞子的地方，在if(	(WHX_STS_IS_ANY_GRP_RUN(WHX_ALL_BITS)) 语句边, 加入	||(IS_USBIN)
+		（CD25022， 无此功能）
+		（NP25002， 无此功能，但是，加入了）
+		
+		以上： NP25021，CD25010，CD24049， 3个机型已经完成
+		
+		
+		
+2025_06_11:
+		PS_Ck_PwOnOff()整体函数升级，加入排序滤波
+		
+		
+		以上： CD24049， 1个机型已经完成
+			NP25021，已经加入新函数，但是还没有启用(0611)
+	 （CD25022，NP25002,  无此功能）
+			
+			
+2025_0613:
+		上电延迟300MS，避免AD检测电压问题
+		
+		以上： CD24049，CD25022，X10，NP25002,   3个机型已经完成
+		
+		
+		
+20250618:
+		在key.h中，增加定义 IS_PINMOD_USBIN_INPUT 
+		
+		
+		以上： CD24049，CD25022, NP25002, AD2501,  4个机型已经完成
+		
+
+20250624：
+		在 chg_ctrl()控制中，增加宏定义 CONFIG_CHG_CTRL_MODON_OUTPUT  CONFIG_CHG_CTRL_MODON_INPUT
+		以便确认控制脚的方式
+		
+		
+		以上： CD25022, X10，NP25002,  3个机型已经完成
+		
+	
+		
+20250625：
+		在chgScan()中，变量 chgScan 有回绕的的BUG，对于16BIT的变量，回绕时间约=18小时
+		所以加入判断 if(chgWholeTime!=0xFFFFFFFF) @32bit		if(chgWholeTime!=0xFFFF) @16bit
+		
+		以上： CD25022, MKZ301，NP25002,  3个机型已经完成
+		
+		
+		在充电功能中， 定义 CONFIG_CHG_PER100_FULL_LIJI  
+		
+		以上： CD25022, X10, NP25002, 	 3个机型已经完成
+		
+		
+		在充电功能中， CONFIG_CHG_GETPOINT_LIJI  
+		
+		以上： CD25022（没有应用）, x10（没有应用）, NP25002,  3个机型已经完成
+		
+		
+		在充电功能中， CONFIG_CHG_HUICHONG 3个宏
+		
+		以上： CD25022（没有应用）, x10（没有应用）, NP25002,   3个机型已经完成
+		
+		
+		加入 CONFIG_REALTIME_CK_PW 宏定义， 以便在 smkTimeOutCK（）中起作用
+
+		以上： x10（没有应用）, NP25002,   2个机型已经完成
+			
+			
+		加入 CONFIG_RES_AUTO_SCAN 宏定义，以便在MAIN中，减少机型的介入
+		
+		以上： x10, NP25002,  2个机型已经完成
+		
+		
+		
+		
+		
+20250626：
+	把 CCAD(mr) 定义中，增加uint32_t,   如 (uint16_t)((uint32_t)mr*4095/(mr+36))
+	
+	取消 waitVolt() 函数	(NP25002没有取消)
+	
+	以上： x10, NP25002,  2个机型已经完成
+	
+	
+
+
+	
+20250701:
+	keyInit()中，充电 CONFIG_PIN_FULL 脚，把配置成上拉
+	加入空闲脚位设置
+	
+	以上： x10, X43，NP25002,   3个机型已经完成
+	
+	
+20250709:
+	chgScan(void)中， CONFIG_CHG_FULL_DELAY 定义没有发挥作用，调整之
+	
+	以上： AB2501,   1个机型已经完成
+	
+	
+
+20250714:
+	主要在 smkResCK_scan()增加检测次数，请查看 resCkLoop 变量，  并注意在 smkStart()中smkResCK()的调用处
+	
+	以上： NP25021,  2506B,  2个机型已经完成
+	
+
+
+20250715：
+	修改宏定义 RES_IS_UNPLUG（）， 用WHX作为参数传递，便于移植
+	
+	以上： 2506,   1个机型已经完成
+
+
+
+20250723：（重要）
+	ADC_COMP_IRQHandler(), EXTI4_15_IRQHandler()等中， 增加对 CONFIG_EMERGENCY_LOWV 的支持，在保护后，需要加入标志
+	
+	在"///应对更高级的中断" 的地方， 增加 (!RESPIN_AD_IS_H_WH1)  和	WHX_SET_GUOLIU(WH1);WHX_STS_CLR_RUN(WH1);
+	
+	#define ADC_IS_FINISHED	(LL_ADC_IsActiveFlag_EOC(ADC1)||LL_ADC_IsActiveFlag_EOS(ADC1))
+	
+	
+	以上： NP25021, 24049B,  2506B,  3个机型已经完成
+	
+	
+	检测电阻时，不要 “ad-=3;”
+	
+	以上： 2506B,  24049B,  2个机型已经完成
+	
+
+	
+20250725：
+	输出中开路保护，
+	
+	
+	以上： AB2501,	NP25021, 	24049B,  3个机型已经完成
+	
+	
+	
+20250730：
+	修改 smkNoLoadCK() 函数	, 发挥变量 smk_noLoadStat 的作用，去掉了变量 smk_noLoadStat_run， 改由 变量 smk_noLoadStat，   改为逐个检测完所有要检测的雾化器
+	
+	修改 smkExistCK_scan()  改由单独检测
+	
+	
+	以上： MT71,	1个机型已经完成
+	
+	
+	
+
+20250819:
+	有电阻检测的机型，电阻检测的开关时刻要调整，主要是在 smkResCK_scan()函数中；  另外关闭输出时，也要关闭电阻检测MOS，防止意外，这个在smkStop_whqx()函数中;  还有导通后glb_delayTime等待也取消，采用多转换一次的方式，在smkResCK_GetRes()把次数+1。
+	
+	查看是否有这个形式：RES_IS_UNPLUG(resitor[WH1]) 看看是否匹配
+	
+	2506系列电压设置出问题了，应该把电压值改成AD值
+	
+	smkStart()里面的smkResCK（）有多余的重叠
+	
+	
+	以上： G2515,	1个机型已经完成
+	
+
+
+2020250820: (*****重要)
+	plugStopper.C,plugStopper.h需要更新，main.c中的策略也要更新
+	
+	对于吸烟时，有无USB插入的判断，即 CONFIG_WHX_OUT_WHEN_CHG ，当有塞子的机型时，即 CONFIG_PLUGSTOP  ， 当充电不能吸烟时，有塞子的话，需要关闭塞子，再去看 IS_USB_PLUG
+
+
+  以上： NP25021,	1个机型已经完成
+
+
+20250823:	(*****重要)
+	ef_fls()需要更新，以解决最后到0的时候的动作
+	
+	
+	以上： G2515,	1个机型已经完成
+	
+	
+	
+
+20250826:
+	在盒子通讯程序中，lookTxApp()检测电压时，关闭显示输出，达到真实电压检测，  并在计算电压时，考虑2.2R欧姆的MCU供电电阻引起的压降
+	
+	
+	以上： NP25021,	1个机型已经完成
+	
+	
+
+20250829:  (*****重要)	
+	有些机型可能没有实现 C_UIPAGE_OVERVOLT ，这样会导致一些问题
+	
+	中断空载检测写法有误：(WHX_STS_IS_RUN(WH2))&(1<<pwm_noLoad_whx)   要改正
+	
+	LL_TIM_ClearFlag_CC1(TIM14);	///多次溢出后，会产生CC1比较器中断，而且这里清除不了，需要在中断入口处清理(貌似要有一次中断入口才可以)
+	
+	
+	以上： G2513,	1个机型已经完成
+	
+	
+	
+20250830:   	(*****重要)	
+	在UI界面里，闪烁等各种界面，界面退出要以闪烁次数为准，不能用 uiTimeOfPagex 作为标准，  因为在KEY.C里，按键动作时，有些地方会调用uiResetPageTime();，导致当前界面黑屏后退步出去，让人觉得死机了
+	
+	以上： G2515,	1个机型已经完成
+	
+
+
+20250904:			(*****重要)	
+	增加 resitor_Old[]， 以便消除震荡
+	
+	以上： G2506B,	1个机型已经完成
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
